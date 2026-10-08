@@ -1,0 +1,60 @@
+{
+  "name": "moa-review",
+  "version": "1.1.0",
+  "description": "학교 문서의 불일치를 근거와 함께 확인하는 오프라인 데스크톱 앱",
+  "author": "Moa Review",
+  "private": true,
+  "main": "app/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/*.test.cjs",
+    "test:ui": "playwright test",
+    "dist": "electron-builder --win nsis zip --x64 --publish never",
+    "release": "node scripts/release.cjs"
+  },
+  "build": {
+    "electronDist": "node_modules/electron/dist",
+    "appId": "kr.moa.review",
+    "productName": "모아검토",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "app/**/*",
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "publish": {"provider":"github","owner":"HooniKims","repo":"moa-review","releaseType":"release"},
+    "win": {
+      "icon": "assets/icon.ico",
+      "executableName": "MoaReview",
+      "artifactName": "MoaReview-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "artifactName": "MoaReview-Setup-${version}.${ext}",
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "모아검토",
+      "runAfterFinish": true,
+      "installerLanguages": [
+        "ko_KR"
+      ],
+      "include": "build/installer.nsh",
+      "installerSidebar": "build/installer/sidebar.bmp",
+      "installerHeader": "build/installer/header.bmp"
+    }
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "^0.9.12",
+    "electron-updater": "^6.8.9",
+    "fflate": "^0.8.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "electron": "^44.6.0",
+    "electron-builder": "^26.15.3"
+  }
+}

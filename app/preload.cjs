@@ -1,0 +1,19 @@
+const {contextBridge,ipcRenderer,webUtils}=require('electron');
+contextBridge.exposeInMainWorld('moa',{
+  selectFiles:()=>ipcRenderer.invoke('files:select'),
+  addDropped:files=>ipcRenderer.invoke('files:add',Array.from(files).map(f=>webUtils.getPathForFile(f))),
+  demo:()=>ipcRenderer.invoke('files:demo'),
+  scan:(ids,year)=>ipcRenderer.invoke('scan',ids,year),
+  openSource:id=>ipcRenderer.invoke('source:open',id),
+  exportReport:(type,statuses)=>ipcRenderer.invoke('report:export',type,statuses),
+  exportSamples:()=>ipcRenderer.invoke('samples:export'),
+  updateState:()=>ipcRenderer.invoke('update:state'),
+  checkUpdate:()=>ipcRenderer.invoke('update:check'),
+  downloadUpdate:()=>ipcRenderer.invoke('update:download'),
+  installUpdate:()=>ipcRenderer.invoke('update:install'),
+  openRelease:()=>ipcRenderer.invoke('update:release'),
+  onUpdate:callback=>{const listener=(_event,state)=>callback(state);ipcRenderer.on('update:state',listener);return ()=>ipcRenderer.removeListener('update:state',listener);},
+  minimize:()=>ipcRenderer.send('window:minimize'),
+  maximize:()=>ipcRenderer.send('window:maximize'),
+  close:()=>ipcRenderer.send('window:close'),
+});
