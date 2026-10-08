@@ -13,7 +13,9 @@ async function demoScan(){await page.locator('#demo').click();await expect(page.
 async function screenshot(target){await page.screenshot({path:target});}
 
 test('update dialog shows current version and receives download progress',async()=>{
-  await page.locator('#open-update').click();await expect(page.locator('#update-dialog')).toBeVisible();
+  await page.locator('#open-settings').click();await expect(page.locator('#update-dialog')).toBeVisible();
+  await expect(page.locator('.maker-credit')).toContainText('HooniKim');await screenshot('docs/screenshot-settings.png');
+  await page.keyboard.press('Escape');await page.locator('#open-update').click();await expect(page.locator('#update-dialog')).toBeVisible();
   await expect(page.locator('#update-version')).toContainText(require('../package.json').version);
   await electronApp.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].webContents.send('update:state',{mode:'installed',phase:'available',current:'1.1.0',available:'1.2.0',progress:0,message:'새 버전 1.2.0을 내려받을 수 있습니다.'}));
   await expect(page.locator('#update-action')).toHaveText('업데이트 받기');await expect(page.locator('#update-dot')).toBeVisible();

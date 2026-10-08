@@ -13,7 +13,9 @@
     el('update-action').textContent=labels[value.phase]||'새 버전 확인';
     el('update-action').disabled=acting||['disabled','checking','downloading','installing'].includes(value.phase);
   }
-  el('open-update').onclick=async()=>{el('update-dialog').showModal();render(await window.moa.updateState());};
+  const openSettings=async()=>{el('update-dialog').showModal();render(await window.moa.updateState());};
+  el('open-settings').onclick=openSettings;
+  el('open-update').onclick=openSettings;
   el('update-release').onclick=()=>window.moa.openRelease();
   el('update-action').onclick=async()=>{
     if(!state||acting)return;acting=true;render(state);
