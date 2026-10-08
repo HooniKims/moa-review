@@ -9,8 +9,8 @@ test.beforeEach(async()=>{
   await electronApp.evaluate(({BrowserWindow})=>{const w=BrowserWindow.getAllWindows()[0];w.webContents.setBackgroundThrottling(false);w.showInactive();});
 });
 test.afterEach(async()=>{if(electronApp)await electronApp.close();expect(errors).toEqual([]);});
-async function demoScan(){await page.locator('#demo').click();await expect(page.locator('.file-item')).toHaveCount(3);await page.locator('#scan').click();await expect(page.locator('#scan-status')).toHaveText('검사가 끝났어요');await expect(page.locator('.issue-card')).toHaveCount(6);}
-async function screenshot(target){await page.screenshot({path:target});}
+async function demoScan(){await page.locator('#demo').click();await expect(page.locator('.file-item')).toHaveCount(3);await expect(page.locator('[data-stage="scan"]')).toHaveAttribute('aria-current','step');await page.locator('#scan').click();await expect(page.locator('#scan-status')).toHaveText('검사가 끝났어요');await expect(page.locator('[data-stage="review"]')).toHaveAttribute('aria-current','step');await expect(page.locator('.issue-card')).toHaveCount(6);}
+async function screenshot(target){await page.screenshot({path:target,animations:'disabled'});}
 
 test('update dialog shows current version and receives download progress',async()=>{
   await page.locator('#open-settings').click();await expect(page.locator('#update-dialog')).toBeVisible();
@@ -27,6 +27,7 @@ test('update dialog shows current version and receives download progress',async(
 });
 test('complete workflow: font, demo, filters, evidence, reviewed state, exports and reset',async()=>{
   await expect(page.locator('h1').first()).toHaveText('문서 대조');
+  await expect(page.locator('[data-stage="add"]')).toHaveAttribute('aria-current','step');
   await page.evaluate(()=>document.fonts.ready);expect(await page.evaluate(()=>document.fonts.check('14px Pretendard'))).toBe(true);
   const fontSession=await page.context().newCDPSession(page);await fontSession.send('DOM.enable');await fontSession.send('CSS.enable');
   const {root:fontRoot}=await fontSession.send('DOM.getDocument');
@@ -47,7 +48,7 @@ test('complete workflow: font, demo, filters, evidence, reviewed state, exports 
     await page.locator('#export').click();await page.locator('#export-'+type).click();await expect(page.locator('#toast')).toContainText('저장했어요');const output=await fs.readFile(target,'utf8');expect(output).toContain('확인 완료');expect(output).toContain('118명');
   }
   await page.locator('.file-name').first().click();await expect(page.locator('#detail')).toContainText('읽은 정보');
-  await page.locator('#nav-guide').click();await expect(page.locator('#guide-page')).toBeVisible();await page.locator('#nav-review').click();
+  await page.locator('#nav-guide').click();await expect(page.locator('#guide-page')).toBeVisible();await expect(page.locator('.workflow')).toBeHidden();await screenshot('docs/screenshot-guide.png');await page.locator('#nav-review').click();await expect(page.locator('.workflow')).toBeVisible();
   await page.locator('#new-task').click();await page.locator('#reset-cancel').click();await expect(page.locator('.file-item')).toHaveCount(3);await page.locator('#new-task').click();await page.locator('#reset-confirm').click();await expect(page.locator('#empty-view')).toBeVisible();
 });
 test('file selection cancellation, unsupported/corrupt files, removal and recovery',async()=>{
@@ -58,7 +59,10 @@ test('file selection cancellation, unsupported/corrupt files, removal and recove
   await page.locator('.file-remove').click();await expect(page.locator('#empty-view')).toBeVisible();await demoScan();
 });
 test('minimum window layout, validation, keyboard navigation and safe source opening',async()=>{
-  await electronApp.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(1100,740));await demoScan();
+  await electronApp.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(1100,740));
+  await page.emulateMedia({reducedMotion:'reduce'});
+  const home=await page.locator('#empty-view').evaluate(el=>({width:el.clientWidth,scroll:el.scrollWidth,button:document.querySelector('#pick-empty').getBoundingClientRect().bottom,height:innerHeight}));expect(home.scroll).toBeLessThanOrEqual(home.width);expect(home.button).toBeLessThan(home.height);
+  await screenshot('docs/screenshot-home-compact.png');await demoScan();
   const sizes=await page.evaluate(()=>({w:innerWidth,h:innerHeight,body:document.body.scrollWidth,panels:[...document.querySelectorAll('.work-grid>.panel')].map(e=>({w:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right,bottom:e.getBoundingClientRect().bottom}))}));expect(sizes.body).toBeLessThanOrEqual(sizes.w);expect(sizes.panels.every(p=>p.w>150&&p.right<=sizes.w&&p.bottom<=sizes.h)).toBe(true);
   await screenshot('docs/screenshot-compact.png');
   await electronApp.evaluate(({shell})=>{shell.openPath=async()=> 'No application';});await page.locator('[data-open]').first().click();await expect(page.locator('#toast')).toContainText('연결 프로그램');

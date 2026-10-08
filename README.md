@@ -5,8 +5,8 @@
 ## 실행
 
 - [최신 릴리즈 다운로드](https://github.com/HooniKims/moa-review/releases/latest)
-- 설치 파일: `MoaReview-Setup-1.1.1.exe`
-- 압축 배포본: `MoaReview-1.1.1-x64.zip` — 전체 압축 해제 후 `MoaReview.exe` 실행
+- 설치 파일: `MoaReview-Setup-1.2.0.exe`
+- 압축 배포본: `MoaReview-1.2.0-x64.zip` — 전체 압축 해제 후 `MoaReview.exe` 실행
 - Windows 10/11 x64용입니다. Node.js, Python, 한글, 엑셀 설치 없이 검사할 수 있습니다. 원본 열기는 해당 형식의 연결 프로그램을 사용합니다.
 - 프리텐다드 폰트와 실행 환경을 포함합니다. 문서 검사에는 인터넷 연결과 로그인이 필요하지 않습니다. 업데이트 확인·다운로드에는 인터넷을 사용합니다.
 - 별도 코드 서명 인증서가 없는 로컬 빌드입니다. Windows의 앱 신뢰도 확인이 표시될 수 있습니다.

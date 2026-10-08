@@ -25,9 +25,12 @@ function renderFiles(){
   document.querySelectorAll('[data-file]').forEach(b=>b.onclick=()=>showDocument(b.dataset.file));
 }
 function render(){
+  $('#review-page').classList.toggle('has-files',files.length>0);
+  const stage=busy?'scan':report?'review':files.length?'scan':'add';
+  document.querySelectorAll('[data-stage]').forEach(el=>{if(el.dataset.stage===stage)el.setAttribute('aria-current','step');else el.removeAttribute('aria-current');});
   $('#empty-view').hidden=files.length>0;$('#workspace').hidden=!files.length;$('#file-count').innerHTML=files.length+'<span>개</span>';$('#file-badge').textContent=files.length;
   const reviewed=report?.issues.filter(i=>statuses[i.id]==='reviewed').length||0;
-  $('#pending-count').textContent=report?report.issues.length-reviewed:'—';$('#reviewed-count').textContent=report?reviewed:'—';$('#issue-badge').textContent=report?.issues.length||0;
+  $('#pending-count').textContent=report?report.issues.length-reviewed:'-';$('#reviewed-count').textContent=report?reviewed:'-';$('#issue-badge').textContent=report?.issues.length||0;
   $('#scan-status').textContent=busy?'문서를 읽고 대조하는 중':report?'검사가 끝났어요':'검사할 준비가 되었어요';renderFiles();renderResults();renderDetail();
 }
 function visibleIssues(){const q=$('#search').value.trim().toLowerCase();return (report?.issues||[]).filter(i=>(filter==='all'||i.kind===filter||(filter==='money'&&i.kind==='calculation'))&&(!$('#pending-only').checked||statuses[i.id]!=='reviewed')&&(!q||JSON.stringify(i).toLowerCase().includes(q)));}
@@ -69,7 +72,7 @@ $('#scan').onclick=async()=>{
 };
 document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));selected=visibleIssues()[0]?.id||null;renderResults();renderDetail();});
 $('#search').oninput=()=>{selected=visibleIssues()[0]?.id||null;renderResults();renderDetail();};$('#pending-only').onchange=()=>{selected=visibleIssues()[0]?.id||null;renderResults();renderDetail();};
-function page(guide){$('#review-page').hidden=guide;$('#guide-page').hidden=!guide;$('#nav-guide').classList.toggle('active',guide);$('#nav-review').classList.toggle('active',!guide);$('#page-label').textContent=guide?'사용 안내':'문서 검토';}
+function page(guide){$('#review-page').hidden=guide;$('#guide-page').hidden=!guide;$('.workflow').hidden=guide;$('#nav-guide').classList.toggle('active',guide);$('#nav-review').classList.toggle('active',!guide);$('#page-label').textContent=guide?'사용 안내':'문서 검토';}
 $('#nav-review').onclick=()=>page(false);$('#nav-guide').onclick=()=>page(true);$('.brand').onclick=e=>{e.preventDefault();page(false);};
 $('#new-task').onclick=()=>{if(busy)return;if(files.length)$('#reset-dialog').showModal();else page(false);};
 $('#reset-cancel').onclick=()=>$('#reset-dialog').close();$('#reset-confirm').onclick=()=>{files=[];filter='all';$('#search').value='';$('#pending-only').checked=false;document.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('active',b.dataset.filter==='all'));invalidate();notice([]);page(false);$('#reset-dialog').close();};
