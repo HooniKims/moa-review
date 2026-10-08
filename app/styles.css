@@ -247,6 +247,16 @@ dialog p { font-size: 14px; line-height: 1.8; margin: 12px 0 25px; }
 .file-bottom input { padding: 7px 8px; }
 .file-bottom p { grid-column: 1 / -1; margin: 0; }
 .file-bottom .button { grid-column: 1 / -1; }
+.edit-evidence { margin-top: 12px; }
+#edit-dialog { width: 630px; }
+#edit-location { overflow-wrap: anywhere; margin-bottom: 18px; font-size: 13px; }
+#edit-fields h3, #edit-fields label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+#edit-original { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 115px; overflow: auto; padding: 12px 14px; margin: 0 0 18px; background: #f1f5ec; border-left: 3px solid #9db883; font: 14px/1.8 Pretendard, sans-serif; }
+#edit-text { display: block; width: 100%; min-height: 96px; max-height: 230px; resize: vertical; padding: 12px 14px; border: 1px solid #8ca393; border-radius: 4px; background: var(--paper); font-size: 15px; line-height: 1.8; }
+#edit-hint { margin: 8px 0 18px; font-size: 12px; }
+#edit-error { margin: 12px 0; padding: 10px 12px; background: #f9eee9; color: var(--red); border-left: 3px solid var(--red); }
+.edit-save-note { border-top: 1px solid var(--line); padding-top: 15px; font-size: 13px; }
+#edit-source { margin-right: auto; }
 @media (prefers-reduced-motion: no-preference) {
   dialog[open] { animation: appear 160ms ease-out; }
   .drop-zone { transition: background-color 160ms, border-color 160ms; }

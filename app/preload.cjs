@@ -5,6 +5,8 @@ contextBridge.exposeInMainWorld('moa',{
   demo:()=>ipcRenderer.invoke('files:demo'),
   scan:(ids,year)=>ipcRenderer.invoke('scan',ids,year),
   openSource:id=>ipcRenderer.invoke('source:open',id),
+  prepareEdit:(id,location)=>ipcRenderer.invoke('document:prepare-edit',id,location),
+  saveEdit:(token,text)=>ipcRenderer.invoke('document:save-edit',token,text),
   exportReport:(type,statuses)=>ipcRenderer.invoke('report:export',type,statuses),
   exportSamples:()=>ipcRenderer.invoke('samples:export'),
   updateState:()=>ipcRenderer.invoke('update:state'),

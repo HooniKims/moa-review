@@ -36,7 +36,7 @@ function parseHwpx(files) {
       const ts=nodes(p,'t').filter(n=>ancestor(n,'p')===p);
       const value=ts.map(n=>n.textContent||'').join('').trim();
       if(!value || ancestor(p,'tc')) return;
-      blocks.push({text:value,location:`구역 ${si+1} · 문단 ${i+1}`,part:name});
+      blocks.push({text:value,location:`구역 ${si+1} · 문단 ${i+1}`,part:name,source:{kind:'hwpx-paragraph',part:name,index:i}});
     });
     tables.forEach((table,ti)=>{
       children(table,'tr').forEach((row,ri)=>{
@@ -44,7 +44,7 @@ function parseHwpx(files) {
           const addr=children(cell,'cellAddr')[0];
           const r=Number(addr?.getAttribute('rowAddr')??ri)+1,c=Number(addr?.getAttribute('colAddr')??ci)+1;
           const value=nodes(cell,'p').filter(p=>ancestor(p,'tc')===cell).map(p=>nodes(p,'t').filter(t=>ancestor(t,'p')===p).map(t=>t.textContent||'').join('')).join(' ').trim();
-          return {text:value,location:`구역 ${si+1} · 표 ${ti+1} · ${r}행 ${c}열`,column:c};
+          return {text:value,location:`구역 ${si+1} · 표 ${ti+1} · ${r}행 ${c}열`,column:c,source:{kind:'hwpx-cell',part:name,table:ti,row:r-1,column:c-1}};
         });
         if(cells.some(c=>c.text)) blocks.push({text:cells.map(c=>c.text).join(' | '),location:`구역 ${si+1} · 표 ${ti+1} · ${ri+1}행`,cells,part:name,tableId:`${name}:table${ti}`});
       });
@@ -88,7 +88,7 @@ function parseXlsx(files) {
         if(type==='e') {warnings.push(`${sn}!${ref}: 엑셀 오류값 ${value}`);value='';}
         if(f&&!v) warnings.push(`${sn}!${ref}: 수식 결과가 없습니다. 엑셀에서 재계산 후 저장해 주세요.`);
         if(dateStyles.has(Number(c.getAttribute('s')))&&value&&type!=='s'&&type!=='inlineStr') value=excelDate(value,date1904);
-        return {text:value,location:`${sn}!${ref}`,column:ref?.replace(/\d/g,''),formula:f?text(f):undefined};
+        return {text:value,location:`${sn}!${ref}`,column:ref?.replace(/\d/g,''),formula:f?text(f):undefined,source:{kind:'xlsx-cell',part,ref,date:dateStyles.has(Number(c.getAttribute('s')))&&type!=='s'&&type!=='inlineStr',date1904}};
       });
       if(cells.some(c=>c.text)) blocks.push({text:cells.map(c=>c.text).join(' | '),location:`${sn} · ${row.getAttribute('r')}행`,cells,part});
     }
@@ -102,6 +102,6 @@ function parseDocument(buffer,filePath) {
   const files=unpack(buffer),parsed=extension==='.hwpx'?parseHwpx(files):parseXlsx(files);
   if(!parsed.blocks.length) throw new Error('읽을 수 있는 텍스트가 없습니다. 이미지·스캔 문서는 지원하지 않습니다.');
   if(parsed.blocks.length>30000) throw new Error('문서의 문단·행이 30,000개를 초과합니다. 파일을 나누어 주세요.');
-  return {id:crypto.createHash('sha256').update(filePath).digest('hex').slice(0,16),name:path.basename(filePath),path:filePath,type:extension.slice(1).toUpperCase(),size:buffer.length,...parsed};
+  return {id:crypto.createHash('sha256').update(filePath).digest('hex').slice(0,16),sha256:crypto.createHash('sha256').update(buffer).digest('hex'),name:path.basename(filePath),path:filePath,type:extension.slice(1).toUpperCase(),size:buffer.length,...parsed};
 }
 module.exports={parseDocument,xml,unpack,excelDate};

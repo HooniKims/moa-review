@@ -3,7 +3,8 @@ const fs=require('node:fs/promises'),path=require('node:path'),crypto=require('n
 const {Worker}=require('node:worker_threads');
 const {reportHtml,reportCsv}=require('../src/report.cjs');
 const {createUpdater,RELEASE_URL}=require('./updater.cjs');
-let win,lastReport,activeWorker,demoDirectory,updater;const registered=new Map();
+const {saveCopy}=require('../src/edit-storage.cjs');
+let win,lastReport,activeWorker,demoDirectory,updater,lastDocuments=[],pendingEdit,editSaving=false;const registered=new Map();
 if(process.env.MOA_TEST_DATA)app.setPath('userData',process.env.MOA_TEST_DATA);
 const safe=fn=>async(event,...args)=>{
   if(event.sender!==win?.webContents||event.senderFrame!==win.webContents.mainFrame)throw new Error('허용되지 않은 요청입니다.');
@@ -37,6 +38,15 @@ function scan(paths,year){return new Promise((resolve,reject)=>{
   w.once('error',e=>{clearTimeout(timer);if(activeWorker===w)activeWorker=null;reject(e);});
   w.once('exit',code=>{clearTimeout(timer);if(activeWorker===w)activeWorker=null;if(code!==0)reject(new Error('검사를 마치지 못했습니다. 파일을 나누어 다시 검사해 주세요.'));});
 });}
+function editTask(action,data){return new Promise((resolve,reject)=>{
+  if(activeWorker)return reject(new Error('현재 작업이 끝난 뒤 수정해 주세요.'));
+  const worker=new Worker(path.join(__dirname,'edit-worker.cjs'),{workerData:{action,...data},resourceLimits:{maxOldGenerationSizeMb:512}});activeWorker=worker;
+  const clear=()=>{clearTimeout(timer);if(activeWorker===worker)activeWorker=null;};
+  const timer=setTimeout(()=>{worker.terminate();clear();reject(new Error('수정 처리 시간이 초과되었습니다. 원본 프로그램에서 수정해 주세요.'));},60000);
+  worker.once('message',r=>{clear();r.ok?resolve(r):reject(new Error(r.error));});
+  worker.once('error',e=>{clear();reject(e);});
+  worker.once('exit',code=>{clear();if(code!==0)reject(new Error('문서 수정 작업을 마치지 못했습니다.'));});
+});}
 app.whenReady().then(()=>{
   session.defaultSession.setPermissionRequestHandler((_wc,_permission,callback)=>callback(false));
   session.defaultSession.webRequest.onBeforeRequest({urls:['http://*/*','https://*/*','ws://*/*','wss://*/*']},(_details,callback)=>callback({cancel:true}));
@@ -51,7 +61,7 @@ app.whenReady().then(()=>{
   ipcMain.handle('update:download',safe(()=>updater.download()));
   ipcMain.handle('update:release',safe(async()=>{await shell.openExternal(RELEASE_URL);return {ok:true};}));
   ipcMain.handle('update:install',safe(async()=>{
-    if(activeWorker)throw new Error('검사가 끝난 뒤 업데이트를 설치해 주세요.');
+    if(activeWorker||editSaving)throw new Error('현재 작업이 끝난 뒤 업데이트를 설치해 주세요.');
     if(updater.state.phase!=='ready')return {ok:false};
     const result=await dialog.showMessageBox(win,{type:'question',title:'업데이트 설치',message:'모아검토를 재시작할까요?',detail:'현재 파일 목록과 확인 표시는 재시작하면 사라집니다. 필요한 검토 결과를 먼저 저장해 주세요.',buttons:['돌아가기','재시작하여 설치'],defaultId:0,cancelId:0,noLink:true});
     return {ok:result.response===1&&updater.install()};
@@ -64,10 +74,39 @@ app.whenReady().then(()=>{
     return register((await fs.readdir(demoDirectory)).filter(n=>/\.(hwpx|xlsx)$/i.test(n)).map(n=>path.join(demoDirectory,n)));
   }));
   ipcMain.handle('scan',safe(async(ids,year)=>{
-    if(activeWorker)throw new Error('검사가 진행 중입니다.');
+    if(activeWorker||editSaving)throw new Error('다른 작업이 진행 중입니다.');
     if(!Array.isArray(ids)||!ids.length||ids.length>30||!ids.every(id=>registered.has(id)))throw new Error('검사할 파일을 다시 선택해 주세요.');
     if(!Number.isInteger(year)||year<2000||year>2100)throw new Error('기준 연도를 확인해 주세요.');
-    const r=await scan([...new Set(ids)].map(id=>registered.get(id)),year);lastReport=r.report;return r;
+    pendingEdit=null;lastDocuments=[];lastReport=null;const r=await scan([...new Set(ids)].map(id=>registered.get(id)),year);lastReport=r.report;lastDocuments=r.documents;return r;
+  }));
+  ipcMain.handle('document:prepare-edit',safe(async(id,location)=>{
+    if(activeWorker||editSaving)throw new Error('현재 작업이 끝난 뒤 수정해 주세요.');
+    pendingEdit=null;
+    const document=lastDocuments.find(d=>d.id===id&&registered.get(id)===d.path);
+    const matches=document?.blocks.flatMap(b=>b.cells||[b]).filter(b=>b.location===location&&b.source)||[];
+    if(matches.length!==1)throw new Error('수정할 원문 위치를 확인할 수 없습니다. 다시 검사해 주세요.');
+    const context={id,filePath:document.path,source:matches[0].source,expectedHash:document.sha256};
+    const result=await editTask('prepare',context);
+    const token=crypto.randomUUID();pendingEdit={...context,token};
+    return {...result,token,fileName:document.name,location};
+  }));
+  ipcMain.handle('document:save-edit',safe(async(token,text)=>{
+    if(activeWorker||editSaving)throw new Error('현재 작업이 끝난 뒤 저장해 주세요.');
+    if(!pendingEdit||pendingEdit.token!==token)throw new Error('수정할 내용을 다시 열어 주세요.');
+    if(typeof text!=='string'||text.length>10000)throw new Error('수정할 내용을 확인해 주세요.');
+    const edit=pendingEdit;editSaving=true;
+    try{
+      const ext=path.extname(edit.filePath),stem=path.basename(edit.filePath,ext).replace(/_수정본(?:_\d+)?$/,'');
+      const stamp=new Date().toISOString().replace(/\D/g,'').slice(0,14);
+      const destination=await dialog.showSaveDialog(win,{title:'수정본 저장',defaultPath:path.join(path.dirname(edit.filePath),`${stem}_수정본_${stamp}${ext}`),filters:[{name:ext.slice(1).toUpperCase(),extensions:[ext.slice(1)]}]});
+      if(destination.canceled)return {canceled:true};
+      const result=await editTask('apply',{...edit,text});
+      const saved=await saveCopy(destination.filePath,edit.filePath,[...registered.values()],result.buffer);
+      const registeredResult=await register([saved]);
+      if(!registeredResult.files.length)throw new Error(`수정본을 저장했지만 다시 불러오지 못했습니다: ${saved}`);
+      pendingEdit=null;lastReport=null;lastDocuments=[];
+      return {ok:true,path:saved,file:registeredResult.files[0],recalculate:result.recalculate,stalePreview:result.stalePreview};
+    }finally{editSaving=false;}
   }));
   ipcMain.handle('source:open',safe(async id=>{const p=registered.get(id);if(!p)throw new Error('파일을 다시 추가해 주세요.');const err=await shell.openPath(p);if(err)throw new Error('원본을 열 수 없습니다. 한글 또는 엑셀 연결 프로그램을 확인해 주세요.');return {ok:true};}));
   ipcMain.handle('report:export',safe(async(type,statuses)=>{

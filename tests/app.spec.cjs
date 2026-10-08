@@ -140,3 +140,35 @@ test('missing input and failed save recover without losing review state',async()
   await page.locator('#pick-more').click();await expect(page.locator('.file-item')).toHaveCount(4);await fs.unlink(missing);
   await page.locator('#scan').click();await expect(page.locator('#scan-status')).toHaveText('검사가 끝났어요');await expect(page.locator('#notice')).toContainText('ENOENT');await expect(page.locator('.issue-card')).toHaveCount(6);
 });
+
+test('direct edits save HWPX and XLSX copies and re-scan without changing originals',async()=>{
+  await electronApp.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(1100,740));
+  await demoScan();await page.locator('[data-filter="people"]').click();
+  const snapshot=await page.evaluate(()=>window.moa.scan([...document.querySelectorAll('[data-file]')].map(e=>e.dataset.file),2026));
+  const originals=await Promise.all(snapshot.documents.map(async d=>({path:d.path,bytes:await fs.readFile(d.path)})));
+  for(const extension of ['hwpx','xlsx']){
+    const edit=extension==='hwpx'?page.locator('[data-edit]').nth(1):page.locator('[data-edit][data-location$="!B3"]');
+    await edit.click();await expect(page.locator('#edit-fields')).toBeVisible();await expect(page.locator('#edit-save')).toBeDisabled();
+    await page.locator('#edit-text').fill(extension==='hwpx'?'참가 인원: 118명':'118');
+    const target=path.join(temp,'수정본.'+extension);await electronApp.evaluate(({dialog},file)=>{dialog.showSaveDialog=async()=>({canceled:false,filePath:file});},target);
+    if(extension==='hwpx'){await screenshot('docs/screenshot-edit.png');const bounds=await page.locator('#edit-save').boundingBox();expect(bounds.y+bounds.height).toBeLessThanOrEqual(740);}
+    await page.locator('#edit-save').click();await expect(page.locator('#edit-dialog')).not.toBeVisible();await expect(page.locator('#scan-status')).toHaveText('검사가 끝났어요');
+    const {parseDocument}=require('../src/documents.cjs');const parsed=parseDocument(await fs.readFile(target),target);expect(parsed.blocks.some(b=>b.text.includes('118'))).toBe(true);
+    await expect(page.locator('.file-name').filter({hasText:'수정본.'+extension})).toHaveCount(1);
+  }
+  await expect(page.locator('.issue-card')).toHaveCount(0);
+  for(const original of originals)expect(await fs.readFile(original.path)).toEqual(original.bytes);
+});
+
+test('direct editing cancellation, changed source and original overwrite are safe',async()=>{
+  await demoScan();await page.locator('[data-filter="people"]').click();
+  const snapshot=await page.evaluate(()=>window.moa.scan([...document.querySelectorAll('[data-file]')].map(e=>e.dataset.file),2026));
+  const original=snapshot.documents[0],before=await fs.readFile(original.path);
+  await page.locator('[data-edit]').first().click();await expect(page.locator('#edit-fields')).toBeVisible();await page.locator('#edit-text').fill('참가 인원: 119명');
+  await electronApp.evaluate(({dialog})=>{dialog.showSaveDialog=async()=>({canceled:true});});await page.locator('#edit-save').click();await expect(page.locator('#edit-save')).toBeEnabled();await expect(page.locator('#edit-dialog')).toBeVisible();
+  await electronApp.evaluate(({dialog},file)=>{dialog.showSaveDialog=async()=>({canceled:false,filePath:file});},original.path);await page.locator('#edit-save').click();await expect(page.locator('#edit-error')).toContainText('덮어쓰지');expect(await fs.readFile(original.path)).toEqual(before);
+  await fs.writeFile(original.path,Buffer.concat([before,Buffer.from('external-change')]));
+  await electronApp.evaluate(({dialog},file)=>{dialog.showSaveDialog=async()=>({canceled:false,filePath:file});},path.join(temp,'stale.hwpx'));await page.locator('#edit-save').click();await expect(page.locator('#edit-error')).toContainText('변경되었습니다');
+  await expect(fs.stat(path.join(temp,'stale.hwpx'))).rejects.toThrow();
+  await page.keyboard.press('Escape');await expect(page.locator('#edit-dialog')).not.toBeVisible();await fs.writeFile(original.path,before);
+});

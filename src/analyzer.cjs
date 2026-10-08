@@ -100,7 +100,7 @@ function analyze(documents,options={}) {
     if(new Set(group.map(f=>f.documentId)).size<2||new Set(group.map(f=>f.value)).size<2)continue;
     // 한 파일에 동일 항목의 서로 다른 값이 있으면 연결 자체를 사용자에게 확인시킴
     const ambiguous=[...Map.groupBy(group,f=>f.documentId).values()].some(g=>new Set(g.map(f=>f.value)).size>1);
-    issue(group[0].kind,`${group[0].key}${ambiguous?'의 비교 기준을 확인해 주세요':'이 서로 달라요'}`,ambiguous?'한 문서에 같은 항목의 값이 여러 개 있습니다. 서로 같은 대상을 가리키는지 먼저 확인해 주세요.':'같은 행사·같은 대상을 설명하는 항목인지 확인한 뒤, 원본에서 올바른 값으로 수정해 주세요.',group);
+    issue(group[0].kind,`${group[0].key}${ambiguous?'의 비교 기준을 확인해 주세요':'이 서로 달라요'}`,ambiguous?'한 문서에 같은 항목의 값이 여러 개 있습니다. 서로 같은 대상을 가리키는지 먼저 확인해 주세요.':'같은 행사·같은 대상을 설명하는 항목인지 확인한 뒤 직접 수정하거나 원본 프로그램에서 수정해 주세요.',group);
   }
   issues.sort((a,b)=>(a.severity==='error'?0:1)-(b.severity==='error'?0:1));
   return {version:1,year,createdAt:new Date().toISOString(),documents:documents.map(d=>({id:d.id,name:d.name,type:d.type,size:d.size,blockCount:d.blocks.length,warnings:d.warnings})),facts,issues,coverage};

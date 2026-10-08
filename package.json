@@ -1,6 +1,6 @@
 {
   "name": "moa-review",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "학교 문서의 불일치를 근거와 함께 확인하는 오프라인 데스크톱 앱",
   "author": "HooniKim",
   "private": true,
@@ -25,7 +25,12 @@
       "assets/**/*",
       "package.json"
     ],
-    "publish": {"provider":"github","owner":"HooniKims","repo":"moa-review","releaseType":"release"},
+    "publish": {
+      "provider": "github",
+      "owner": "HooniKims",
+      "repo": "moa-review",
+      "releaseType": "release"
+    },
     "win": {
       "icon": "assets/icon.ico",
       "executableName": "MoaReview",
@@ -49,6 +54,7 @@
   },
   "dependencies": {
     "@xmldom/xmldom": "^0.9.12",
+    "diff": "^9.0.0",
     "electron-updater": "^6.8.9",
     "fflate": "^0.8.3"
   },

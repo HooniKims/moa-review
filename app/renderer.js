@@ -43,13 +43,45 @@ function renderResults(){
   list.innerHTML=issues.map(i=>`<button class="issue-card ${selected===i.id?'selected':''} ${statuses[i.id]==='reviewed'?'reviewed':''}" data-issue="${i.id}"><div class="issue-top"><span class="tag ${i.severity==='error'?'error':''}">${esc(i.category)}</span><span class="issue-status">${statuses[i.id]==='reviewed'?'✓ 확인 완료':'확인 필요'}</span></div><h3>${esc(i.title)}</h3><div class="issue-values">${esc([...new Set(i.evidence.map(e=>e.display))].join(' ↔ '))}</div><div class="issue-source">${icon('file')}문서 ${new Set(i.evidence.map(e=>e.documentId)).size}개 · 근거 ${i.evidence.length}곳</div></button>`).join('');
   document.querySelectorAll('[data-issue]').forEach(b=>b.onclick=()=>{selected=b.dataset.issue;renderResults();renderDetail();});
 }
-function bindSource(){document.querySelectorAll('[data-open]').forEach(b=>b.onclick=async()=>{const r=await window.moa.openSource(b.dataset.open);if(r.error)toast(r.error);});}
-function evidenceHtml(e){return `<div class="evidence"><div class="evidence-top">${icon('file')}<span>${esc(e.fileName)}</span><button class="source-open" data-open="${esc(e.documentId)}">원본 열기 ↗</button></div><div class="evidence-value">${esc(e.display)}</div><div class="evidence-location">${icon('pin')}${esc(e.location)}</div><div class="excerpt">${esc(e.excerpt)}</div></div>`;}
+function bindSource(){document.querySelectorAll('[data-open]').forEach(b=>b.onclick=async()=>{const r=await window.moa.openSource(b.dataset.open);if(r.error)toast(r.error);});document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEdit(b.dataset.edit,b.dataset.location));}
+function evidenceHtml(e){return `<div class="evidence"><div class="evidence-top">${icon('file')}<span>${esc(e.fileName)}</span><button class="source-open" data-open="${esc(e.documentId)}">원본 열기 ↗</button></div><div class="evidence-value">${esc(e.display)}</div><div class="evidence-location">${icon('pin')}${esc(e.location)}</div><div class="excerpt">${esc(e.excerpt)}</div><button class="button secondary small edit-evidence" data-edit="${esc(e.documentId)}" data-location="${esc(e.location)}" aria-label="${esc(e.fileName+' '+e.location+' 직접 수정')}">직접 수정</button></div>`;}
+let editContext=null,editRequest=0,editSaving=false;
+const editError=message=>{$('#edit-error').textContent=message;$('#edit-error').hidden=!message;};
+function updateEditButton(){$('#edit-save').disabled=editSaving||!editContext?.token||!$('#edit-text').value.trim()||$('#edit-text').value===editContext.text;}
+async function openEdit(id,location){
+  if(busy)return;const request=++editRequest;editContext={id,location};
+  $('#edit-fields').hidden=true;$('#edit-save').disabled=true;$('#edit-text').value='';editError('');$('#edit-location').textContent='수정할 원문을 확인하고 있습니다.';$('#edit-dialog').showModal();
+  try{const result=await window.moa.prepareEdit(id,location);if(request!==editRequest||!$('#edit-dialog').open)return;
+    if(result.error){$('#edit-location').textContent=location;editError(result.error);return;}
+    editContext={id,location,...result};$('#edit-location').textContent=result.fileName+' · '+location;
+    $('#edit-original').textContent=result.text;$('#edit-text').value=result.text;$('#edit-hint').textContent=result.hint;
+    $('#edit-text').setAttribute('inputmode',result.type==='number'?'decimal':'text');$('#edit-fields').hidden=false;$('#edit-text').focus();
+  }catch(e){if(request===editRequest)editError(e.message);}
+}
+$('#edit-text').oninput=()=>{editError('');updateEditButton();};
+$('#edit-close').onclick=$('#edit-cancel').onclick=()=>{if(!editSaving)$('#edit-dialog').close();};
+$('#edit-dialog').addEventListener('cancel',e=>{if(editSaving)e.preventDefault();});
+$('#edit-dialog').addEventListener('close',()=>{editRequest++;editContext=null;});
+$('#edit-source').onclick=async()=>{const result=await window.moa.openSource(editContext?.id);if(result.error)editError(result.error);};
+$('#edit-save').onclick=async()=>{
+  if(editSaving||!editContext?.token)return;const context=editContext;editSaving=true;updateEditButton();editError('');
+  for(const id of ['edit-close','edit-cancel','edit-source','edit-text'])$('#'+id).disabled=true;$('#edit-save').textContent='저장 중…';
+  try{const result=await window.moa.saveEdit(context.token,$('#edit-text').value);
+    if(result.error){editError(result.error);return;}if(result.canceled)return;
+    files=files.map(f=>f.id===context.id?result.file:f);invalidate();$('#edit-dialog').close();await $('#scan').onclick();
+    toast(report?'수정본을 저장하고 다시 검사했습니다.':'수정본을 저장했습니다. 검사 안내를 확인해 주세요.');
+    const notes=[];
+    if(result.recalculate)notes.push('엑셀 수식은 다시 계산해야 합니다. 수정본을 엑셀에서 열어 저장한 뒤 다시 검사해 주세요.');
+    if(result.stalePreview)notes.push('문서 내용은 수정되었지만 미리보기 이미지는 이전 상태입니다. 한글에서 수정본을 열어 저장하면 갱신됩니다.');
+    if(notes.length)notice([$('#notice').hidden?'':$('#notice').textContent,`수정본 저장: ${result.path}`,...notes].filter(Boolean));
+  }catch(e){editError(e.message);}
+  finally{editSaving=false;for(const id of ['edit-close','edit-cancel','edit-source','edit-text'])$('#'+id).disabled=false;$('#edit-save').textContent='수정본 저장';updateEditButton();}
+};
 function renderDetail(){
   const issue=report?.issues.find(i=>i.id===selected);
   if(!issue||busy){$('#detail').innerHTML=empty('검토 항목을 선택하세요','검토 항목을 선택하면\n문서별 값과 원문이 여기에 표시돼요.','file');return;}
   const reviewed=statuses[issue.id]==='reviewed';
-  $('#detail').innerHTML=`<div class="detail-inner"><span class="tag ${reviewed?'reviewed':issue.severity==='error'?'error':''}">${esc(issue.category)} · ${reviewed?'확인 완료':'확인 필요'}</span><h2 class="detail-title">${esc(issue.title)}</h2><p class="detail-description">${esc(issue.description)}</p>${issue.evidence.map(evidenceHtml).join('')}<div class="detail-bottom"><button id="mark-reviewed" class="button ${reviewed?'secondary':'primary'}">${icon('check')}${reviewed?'확인 필요로 되돌리기':'확인 완료로 표시'}</button><p>검토 상태만 변경돼요. 원본 수정 후에는 다시 검사해 주세요.</p></div></div>`;
+  $('#detail').innerHTML=`<div class="detail-inner"><span class="tag ${reviewed?'reviewed':issue.severity==='error'?'error':''}">${esc(issue.category)} · ${reviewed?'확인 완료':'확인 필요'}</span><h2 class="detail-title">${esc(issue.title)}</h2><p class="detail-description">${esc(issue.description)}</p>${issue.evidence.map(evidenceHtml).join('')}<div class="detail-bottom"><button id="mark-reviewed" class="button ${reviewed?'secondary':'primary'}">${icon('check')}${reviewed?'확인 필요로 되돌리기':'확인 완료로 표시'}</button><p>확인 표시는 문서 내용을 바꾸지 않습니다.</p></div></div>`;
   $('#mark-reviewed').onclick=()=>{statuses[issue.id]=reviewed?'pending':'reviewed';if($('#pending-only').checked&&!reviewed)selected=visibleIssues()[0]?.id||null;render();};bindSource();
 }
 function showDocument(id){
