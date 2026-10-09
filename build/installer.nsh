@@ -35,18 +35,18 @@
 
 !macro customHeader
   SetFont "Pretendard" 11
-  BrandingText "모아검토 · 문서 대조"
+  BrandingText "SEN콕 · 문서 대조"
 !macroend
 
 !macro customWelcomePage
-  !define MUI_WELCOMEPAGE_TITLE "모아검토 설치"
+  !define MUI_WELCOMEPAGE_TITLE "SEN콕 설치"
   !define MUI_WELCOMEPAGE_TEXT ""
   !define MUI_PAGE_CUSTOMFUNCTION_SHOW MoaWelcomeShow
   !insertmacro MUI_PAGE_WELCOME
   Function MoaWelcomeShow
     ShowWindow $mui.WelcomePage.Title ${SW_HIDE}
     ShowWindow $mui.WelcomePage.Text ${SW_HIDE}
-    !insertmacro MoaLabel 17 30 "모아검토 설치" $MoaTitleFont "236959"
+    !insertmacro MoaLabel 17 30 "SEN콕 설치" $MoaTitleFont "236959"
     !insertmacro MoaLabel 59 34 "학교 문서의 날짜와 금액을$\r$\n한 번에 대조합니다." $MoaLeadFont "24312C"
     !insertmacro MoaLabel 104 36 "계획서·가정통신문·예산표에서$\r$\n서로 다른 값과 원문 위치를 보여줍니다." $MoaBodyFont "3C4842"
     !insertmacro MoaLabel 148 26 "HWPX · XLSX 지원$\r$\n문서 검사는 이 컴퓨터에서 진행합니다." $MoaSmallFont "52675D"
@@ -55,7 +55,7 @@
 !macroend
 
 !macro customPageAfterChangeDir
-  !define MUI_PAGE_HEADER_TEXT "모아검토를 설치하고 있습니다"
+  !define MUI_PAGE_HEADER_TEXT "SEN콕을 설치하고 있습니다"
   !define MUI_PAGE_HEADER_SUBTEXT "프로그램 파일을 복사하고 있습니다. 잠시만 기다려 주세요."
   !define MUI_PAGE_CUSTOMFUNCTION_SHOW MoaProgressShow
   Function MoaProgressShow
@@ -82,8 +82,8 @@
   !define MUI_FINISHPAGE_TEXT_LARGE
   !define MUI_FINISHPAGE_RUN
   !define MUI_FINISHPAGE_RUN_FUNCTION MoaStartApp
-  !define MUI_FINISHPAGE_RUN_TEXT "지금 모아검토 열기"
-  !define MUI_FINISHPAGE_BUTTON "모아검토 열기"
+  !define MUI_FINISHPAGE_RUN_TEXT "지금 SEN콕 열기"
+  !define MUI_FINISHPAGE_BUTTON "SEN콕 열기"
   !define MUI_PAGE_CUSTOMFUNCTION_SHOW MoaFinishShow
   !insertmacro MUI_PAGE_FINISH
   Function MoaFinishShow
@@ -93,7 +93,7 @@
     !insertmacro MoaLabel 17 30 "설치가 끝났습니다" $MoaTitleFont "236959"
     !insertmacro MoaLabel 59 34 "문서를 불러와$\r$\n서로 다른 값을 확인하세요." $MoaLeadFont "24312C"
     !insertmacro MoaLabel 104 40 "준비한 문서가 없어도 괜찮습니다.$\r$\n앱에서 ‘예제 불러오기’를 눌러 살펴보세요." $MoaBodyFont "3C4842"
-    ${NSD_CreateCheckbox} 120u 163u 195u 15u "지금 모아검토 열기"
+    ${NSD_CreateCheckbox} 120u 163u 195u 15u "지금 SEN콕 열기"
     Pop $mui.FinishPage.Run
     SendMessage $mui.FinishPage.Run ${WM_SETFONT} $MoaBodyFont 1
     SetCtlColors $mui.FinishPage.Run "24312C" "FFFFFF"
@@ -104,7 +104,7 @@
     Pop $0
     ${NSD_GetState} $mui.FinishPage.Run $0
     ${If} $0 == ${BST_CHECKED}
-      SendMessage $mui.Button.Next ${WM_SETTEXT} 0 "STR:모아검토 열기"
+      SendMessage $mui.Button.Next ${WM_SETTEXT} 0 "STR:SEN콕 열기"
     ${Else}
       SendMessage $mui.Button.Next ${WM_SETTEXT} 0 "STR:닫기"
     ${EndIf}

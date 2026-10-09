@@ -78,7 +78,7 @@ test('packaged sample export writes usable original files',async()=>{
   await electronApp.evaluate(({dialog},folder)=>{dialog.showOpenDialog=async()=>({canceled:false,filePaths:[folder]});},temp);
   await page.locator('#nav-guide').click();await page.locator('#save-samples').click();
   await expect(page.locator('#toast')).toContainText('예제를 저장했어요');
-  const folder=(await fs.readdir(temp)).find(n=>n.startsWith('모아검토_예제_'));
+  const folder=(await fs.readdir(temp)).find(n=>n.startsWith('SEN콕_예제_'));
   const names=await fs.readdir(path.join(temp,folder));expect(names).toHaveLength(3);
   for(const name of names)expect(await fs.readFile(path.join(temp,folder,name))).toEqual(await fs.readFile(path.join(__dirname,'../assets/samples',name)));
   await page.locator('#nav-review').click();await demoScan();
