@@ -21,25 +21,15 @@
 !macroend
 
 !macro customInit
-  ; Process-private fonts: no system-wide font install or registry changes.
-  InitPluginsDir
-  File /oname=$PLUGINSDIR\Ghanachocolate.ttf "${BUILD_RESOURCES_DIR}\..\assets\Ghanachocolate.ttf"
-  System::Call 'gdi32::AddFontResourceExW(w "$PLUGINSDIR\Ghanachocolate.ttf", i 16, p 0) i .r0'
-  CreateFont $MoaTitleFont "Ghanachocolate" 22 400
-  CreateFont $MoaLeadFont "Ghanachocolate" 14 400
-  CreateFont $MoaBodyFont "Ghanachocolate" 12 400
-  CreateFont $MoaSmallFont "Ghanachocolate" 10 400
+  ; Use the installer's default language font, with no custom font loading.
+  CreateFont $MoaTitleFont "$(^Font)" 22 600
+  CreateFont $MoaLeadFont "$(^Font)" 14 400
+  CreateFont $MoaBodyFont "$(^Font)" 12 400
+  CreateFont $MoaSmallFont "$(^Font)" 10 400
 !macroend
 
 !macro customHeader
-  SetFont "Ghanachocolate" 11
   BrandingText "쎈Pick · 문서 대조"
-!macroend
-
-!macro customUnInit
-  InitPluginsDir
-  File /oname=$PLUGINSDIR\Ghanachocolate.ttf "${BUILD_RESOURCES_DIR}\..\assets\Ghanachocolate.ttf"
-  System::Call 'gdi32::AddFontResourceExW(w "$PLUGINSDIR\Ghanachocolate.ttf", i 16, p 0) i .r0'
 !macroend
 
 !macro customWelcomePage
@@ -63,7 +53,7 @@
   !define MUI_PAGE_HEADER_SUBTEXT "프로그램 파일을 복사하고 있습니다. 잠시만 기다려 주세요."
   !define MUI_PAGE_CUSTOMFUNCTION_SHOW MoaProgressShow
   Function MoaProgressShow
-    CreateFont $0 "Ghanachocolate" 12 400
+    CreateFont $0 "$(^Font)" 12 600
     SendMessage $mui.Header.Text ${WM_SETFONT} $0 1
     SetCtlColors $mui.Header.Text "236959" "FFFFFF"
     FindWindow $1 "#32770" "" $HWNDPARENT
