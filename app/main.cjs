@@ -50,7 +50,7 @@ function editTask(action,data){return new Promise((resolve,reject)=>{
 app.whenReady().then(()=>{
   session.defaultSession.setPermissionRequestHandler((_wc,_permission,callback)=>callback(false));
   session.defaultSession.webRequest.onBeforeRequest({urls:['http://*/*','https://*/*','ws://*/*','wss://*/*']},(_details,callback)=>callback({cancel:true}));
-  win=new BrowserWindow({width:1440,height:960,minWidth:1100,minHeight:740,show:false,frame:false,backgroundColor:'#F7F7F8',icon:path.join(__dirname,'../assets/icon.ico'),webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,devTools:!app.isPackaged}});
+  win=new BrowserWindow({width:1440,height:960,minWidth:1100,minHeight:740,show:false,frame:false,backgroundColor:'#E8F2FF',icon:path.join(__dirname,'../assets/icon.ico'),webPreferences:{preload:path.join(__dirname,'preload.cjs'),nodeIntegration:false,contextIsolation:true,sandbox:true,devTools:!app.isPackaged}});
   win.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   win.webContents.on('will-navigate',e=>e.preventDefault());
   win.loadFile(path.join(__dirname,'index.html'));
