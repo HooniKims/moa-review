@@ -1,6 +1,6 @@
 {
   "name": "moa-review",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "학교 문서의 불일치를 근거와 함께 확인하는 오프라인 데스크톱 앱",
   "author": "HooniKim",
   "private": true,
@@ -15,7 +15,7 @@
   "build": {
     "electronDist": "node_modules/electron/dist",
     "appId": "kr.moa.review",
-    "productName": "SEN콕",
+    "productName": "쎈Pick",
     "directories": {
       "output": "release"
     },
@@ -42,7 +42,7 @@
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "shortcutName": "SEN콕",
+      "shortcutName": "쎈Pick",
       "runAfterFinish": true,
       "installerLanguages": [
         "ko_KR"

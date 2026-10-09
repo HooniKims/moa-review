@@ -27,6 +27,6 @@ function main(){
   fs.writeFileSync(path.join(dir,'SHA256SUMS.txt'),names.map(n=>`${crypto.createHash('sha256').update(fs.readFileSync(path.join(dir,n))).digest('hex')}  ${n}`).join('\n')+'\n');
   const notesPath=path.join(dir,'release-notes.md');
   fs.writeFileSync(notesPath,`${section}\n\n설치형: MoaReview-Setup-${version}.exe\n압축 배포본: MoaReview-${version}-x64.zip (전체 압축 해제 후 실행)\n\n설치형은 앱에서 업데이트를 받고, ZIP 배포본은 새 ZIP을 내려받아 교체합니다.\n`);
-  run('gh',['release','create',tag,...paths,path.join(dir,'SHA256SUMS.txt'),'--repo',`${owner}/${repo}`,'--target',head,'--title',`SEN콕 ${version}`,'--notes-file',notesPath,...(process.argv.includes('--draft')?['--draft']:[])],true);
+  run('gh',['release','create',tag,...paths,path.join(dir,'SHA256SUMS.txt'),'--repo',`${owner}/${repo}`,'--target',head,'--title',`쎈Pick ${version}`,'--notes-file',notesPath,...(process.argv.includes('--draft')?['--draft']:[])],true);
 }
 try{main();}catch(error){console.error(`릴리즈 중단: ${error.message}`);process.exitCode=1;}

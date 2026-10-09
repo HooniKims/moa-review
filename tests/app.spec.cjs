@@ -28,13 +28,13 @@ test('update dialog shows current version and receives download progress',async(
 test('complete workflow: font, demo, filters, evidence, reviewed state, exports and reset',async()=>{
   await expect(page.locator('h1').first()).toHaveText('문서 대조');
   await expect(page.locator('[data-stage="add"]')).toHaveAttribute('aria-current','step');
-  await page.evaluate(()=>document.fonts.ready);expect(await page.evaluate(()=>document.fonts.check('14px Pretendard'))).toBe(true);
+  await page.evaluate(()=>document.fonts.ready);expect(await page.evaluate(()=>document.fonts.check('14px Ghanachocolate'))).toBe(true);
   const fontSession=await page.context().newCDPSession(page);await fontSession.send('DOM.enable');await fontSession.send('CSS.enable');
   const {root:fontRoot}=await fontSession.send('DOM.getDocument');
   for(const selector of ['h1','.heading-row p']){
     const {nodeId}=await fontSession.send('DOM.querySelector',{nodeId:fontRoot.nodeId,selector});
     const {fonts}=await fontSession.send('CSS.getPlatformFontsForNode',{nodeId});
-    expect(fonts.length).toBeGreaterThan(0);expect(fonts.every(f=>f.isCustomFont&&f.familyName.includes('Pretendard'))).toBe(true);
+    expect(fonts.length).toBeGreaterThan(0);expect(fonts.every(f=>f.isCustomFont&&f.familyName.includes('Ghanachocolate'))).toBe(true);
   }
   await fontSession.detach();
   await screenshot('docs/screenshot-home.png');
@@ -78,7 +78,7 @@ test('packaged sample export writes usable original files',async()=>{
   await electronApp.evaluate(({dialog},folder)=>{dialog.showOpenDialog=async()=>({canceled:false,filePaths:[folder]});},temp);
   await page.locator('#nav-guide').click();await page.locator('#save-samples').click();
   await expect(page.locator('#toast')).toContainText('예제를 저장했어요');
-  const folder=(await fs.readdir(temp)).find(n=>n.startsWith('SEN콕_예제_'));
+  const folder=(await fs.readdir(temp)).find(n=>n.startsWith('쎈Pick_예제_'));
   const names=await fs.readdir(path.join(temp,folder));expect(names).toHaveLength(3);
   for(const name of names)expect(await fs.readFile(path.join(temp,folder,name))).toEqual(await fs.readFile(path.join(__dirname,'../assets/samples',name)));
   await page.locator('#nav-review').click();await demoScan();

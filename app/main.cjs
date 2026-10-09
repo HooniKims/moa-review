@@ -63,7 +63,7 @@ app.whenReady().then(()=>{
   ipcMain.handle('update:install',safe(async()=>{
     if(activeWorker||editSaving)throw new Error('현재 작업이 끝난 뒤 업데이트를 설치해 주세요.');
     if(updater.state.phase!=='ready')return {ok:false};
-    const result=await dialog.showMessageBox(win,{type:'question',title:'업데이트 설치',message:'SEN콕을 재시작할까요?',detail:'현재 파일 목록과 확인 표시는 재시작하면 사라집니다. 필요한 검토 결과를 먼저 저장해 주세요.',buttons:['돌아가기','재시작하여 설치'],defaultId:0,cancelId:0,noLink:true});
+    const result=await dialog.showMessageBox(win,{type:'question',title:'업데이트 설치',message:'쎈Pick을 재시작할까요?',detail:'현재 파일 목록과 확인 표시는 재시작하면 사라집니다. 필요한 검토 결과를 먼저 저장해 주세요.',buttons:['돌아가기','재시작하여 설치'],defaultId:0,cancelId:0,noLink:true});
     return {ok:result.response===1&&updater.install()};
   }));
   if(!process.env.MOA_TEST_DATA)updater.start();
@@ -113,7 +113,7 @@ app.whenReady().then(()=>{
     if(!lastReport)throw new Error('먼저 검사를 실행해 주세요.');
     if(!['html','csv'].includes(type))throw new Error('지원하지 않는 형식입니다.');
     const report=structuredClone(lastReport);report.issues.forEach(i=>{i.status=statuses?.[i.id]==='reviewed'?'reviewed':'pending';});
-    const r=await dialog.showSaveDialog(win,{title:'검사 결과 저장',defaultPath:`SEN콕_${report.year}_${new Date().toISOString().slice(0,10)}.${type}`,filters:[{name:type==='html'?'웹 문서':'CSV (엑셀에서 열기)',extensions:[type]}]});
+    const r=await dialog.showSaveDialog(win,{title:'검사 결과 저장',defaultPath:`쎈Pick_${report.year}_${new Date().toISOString().slice(0,10)}.${type}`,filters:[{name:type==='html'?'웹 문서':'CSV (엑셀에서 열기)',extensions:[type]}]});
     if(r.canceled)return {canceled:true};
     // 입력 원본을 출력 대상으로 선택해도 덮어쓰지 않음
     if(!r.filePath.toLowerCase().endsWith('.'+type))throw new Error(`.${type} 확장자로 저장해 주세요.`);
@@ -121,7 +121,7 @@ app.whenReady().then(()=>{
   }));
   ipcMain.handle('samples:export',safe(async()=>{
     const r=await dialog.showOpenDialog(win,{title:'예제 파일을 저장할 폴더',properties:['openDirectory','createDirectory']});if(r.canceled)return {canceled:true};
-    const destination=await fs.mkdtemp(path.join(r.filePaths[0],'SEN콕_예제_'));await copySamples(destination);return {ok:true,path:destination};
+    const destination=await fs.mkdtemp(path.join(r.filePaths[0],'쎈Pick_예제_'));await copySamples(destination);return {ok:true,path:destination};
   }));
   for(const [channel,fn] of Object.entries({'window:minimize':()=>win.minimize(),'window:maximize':()=>win.isMaximized()?win.unmaximize():win.maximize(),'window:close':()=>win.close()}))ipcMain.on(channel,e=>{if(e.sender===win.webContents)fn();});
 });
