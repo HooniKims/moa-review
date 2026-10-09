@@ -1,6 +1,6 @@
 {
   "name": "moa-review",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "학교 문서의 불일치를 근거와 함께 확인하는 오프라인 데스크톱 앱",
   "author": "HooniKim",
   "private": true,

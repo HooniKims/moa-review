@@ -21,15 +21,27 @@
 !macroend
 
 !macro customInit
-  ; Use the installer's default language font, with no custom font loading.
-  CreateFont $MoaTitleFont "$(^Font)" 22 600
-  CreateFont $MoaLeadFont "$(^Font)" 14 400
-  CreateFont $MoaBodyFont "$(^Font)" 12 400
-  CreateFont $MoaSmallFont "$(^Font)" 10 400
+  ; Process-private fonts; nothing is installed into Windows.
+  InitPluginsDir
+  File /oname=$PLUGINSDIR\Pretendard-Regular.otf "${BUILD_RESOURCES_DIR}\installer\Pretendard-Regular.otf"
+  File /oname=$PLUGINSDIR\Pretendard-SemiBold.otf "${BUILD_RESOURCES_DIR}\installer\Pretendard-SemiBold.otf"
+  System::Call 'gdi32::AddFontResourceExW(w "$PLUGINSDIR\Pretendard-Regular.otf", i 16, p 0) i .r0'
+  System::Call 'gdi32::AddFontResourceExW(w "$PLUGINSDIR\Pretendard-SemiBold.otf", i 16, p 0) i .r0'
+  CreateFont $MoaTitleFont "Pretendard" 26 600
+  CreateFont $MoaLeadFont "Pretendard" 14 400
+  CreateFont $MoaBodyFont "Pretendard" 12 400
+  CreateFont $MoaSmallFont "Pretendard" 10 400
 !macroend
 
 !macro customHeader
+  SetFont "Pretendard" 11
   BrandingText "쎈Pick · 문서 대조"
+!macroend
+
+!macro customUnInit
+  InitPluginsDir
+  File /oname=$PLUGINSDIR\Pretendard-Regular.otf "${BUILD_RESOURCES_DIR}\installer\Pretendard-Regular.otf"
+  System::Call 'gdi32::AddFontResourceExW(w "$PLUGINSDIR\Pretendard-Regular.otf", i 16, p 0) i .r0'
 !macroend
 
 !macro customWelcomePage
@@ -40,11 +52,11 @@
   Function MoaWelcomeShow
     ShowWindow $mui.WelcomePage.Title ${SW_HIDE}
     ShowWindow $mui.WelcomePage.Text ${SW_HIDE}
-    !insertmacro MoaLabel 17 30 "쎈Pick 설치" $MoaTitleFont "236959"
-    !insertmacro MoaLabel 59 52 "학교의 여러 문서에서$\r$\n날짜·인원·장소·금액의$\r$\n차이를 찾아드립니다." $MoaLeadFont "24312C"
-    !insertmacro MoaLabel 116 24 "서로 다른 값과 원문 위치를 보여줍니다." $MoaBodyFont "3C4842"
-    !insertmacro MoaLabel 148 26 "HWPX · XLSX 지원$\r$\n문서 검사는 이 컴퓨터에서 진행합니다." $MoaSmallFont "52675D"
-    !insertmacro MoaLabel 177 12 "다음을 눌러 설치를 시작하세요." $MoaSmallFont "52675D"
+    !insertmacro MoaLabel 18 12 "학교 문서 검토" $MoaSmallFont "5A7A6C"
+    !insertmacro MoaLabel 39 36 "쎈Pick 설치" $MoaTitleFont "173D33"
+    !insertmacro MoaLabel 86 50 "학교의 여러 문서에서$\r$\n날짜·인원·장소·금액의$\r$\n차이를 찾아드립니다." $MoaLeadFont "24312C"
+    !insertmacro MoaLabel 148 28 "HWPX · XLSX 지원$\r$\n문서 검사는 내 PC에서 진행됩니다." $MoaSmallFont "52675D"
+    !insertmacro MoaLabel 182 12 "다음을 눌러 설치를 시작하세요." $MoaSmallFont "52675D"
   FunctionEnd
 !macroend
 
@@ -53,7 +65,7 @@
   !define MUI_PAGE_HEADER_SUBTEXT "프로그램 파일을 복사하고 있습니다. 잠시만 기다려 주세요."
   !define MUI_PAGE_CUSTOMFUNCTION_SHOW MoaProgressShow
   Function MoaProgressShow
-    CreateFont $0 "$(^Font)" 12 600
+    CreateFont $0 "Pretendard" 12 600
     SendMessage $mui.Header.Text ${WM_SETFONT} $0 1
     SetCtlColors $mui.Header.Text "236959" "FFFFFF"
     FindWindow $1 "#32770" "" $HWNDPARENT
@@ -84,10 +96,11 @@
     ShowWindow $mui.FinishPage.Title ${SW_HIDE}
     ShowWindow $mui.FinishPage.Text ${SW_HIDE}
     ShowWindow $mui.FinishPage.Run ${SW_HIDE}
-    !insertmacro MoaLabel 17 30 "설치가 끝났습니다" $MoaTitleFont "236959"
-    !insertmacro MoaLabel 59 34 "문서를 불러와$\r$\n서로 다른 값을 확인하세요." $MoaLeadFont "24312C"
-    !insertmacro MoaLabel 104 40 "준비한 문서가 없어도 괜찮습니다.$\r$\n앱에서 ‘예제 불러오기’를 눌러 살펴보세요." $MoaBodyFont "3C4842"
-    ${NSD_CreateCheckbox} 120u 163u 195u 15u "지금 쎈Pick 열기"
+    !insertmacro MoaLabel 18 12 "설치 완료" $MoaSmallFont "5A7A6C"
+    !insertmacro MoaLabel 39 36 "준비가 끝났습니다" $MoaTitleFont "173D33"
+    !insertmacro MoaLabel 86 36 "문서를 불러와$\r$\n서로 다른 값을 확인하세요." $MoaLeadFont "24312C"
+    !insertmacro MoaLabel 134 30 "앱의 ‘예제 불러오기’로$\r$\n바로 체험할 수 있습니다." $MoaBodyFont "52675D"
+    ${NSD_CreateCheckbox} 120u 181u 195u 15u "지금 쎈Pick 열기"
     Pop $mui.FinishPage.Run
     SendMessage $mui.FinishPage.Run ${WM_SETFONT} $MoaBodyFont 1
     SetCtlColors $mui.FinishPage.Run "24312C" "FFFFFF"
