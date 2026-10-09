@@ -146,6 +146,8 @@ UI 테스트: 폰트 로딩, 파일 선택·취소, 실제 디스크 파일 끌�
 | `tests/` | 핵심 기능 및 실제 앱 테스트 |
 | `docs/UPDATE-VERIFICATION.md` | 설치·업데이트 검증 결과와 남은 한계 |
 
+로컬 배포 파일은 프로젝트 안의 `release/버전번호/`에 보관합니다. 이전 빌드와 임시 패키지는 `release/_archive/`, 참고 자료와 작업 기록은 `_workspace/`에 모읍니다. 이 폴더들과 `node_modules/`, 테스트 결과는 GitHub에 올리지 않습니다. GitHub에는 소스·테스트·빌드 설정·사용 문서를 보관하고, 설치 파일은 Releases에서 배포합니다.
+
 ## 데이터와 라이선스
 
 쎈Pick 앱과 HTML 검사 결과에는 롯데웰푸드의 가나초콜릿체를 포함합니다. MIT·SIL OFL과 별개의 자체 이용 조건을 따르며, 출처와 조건은 [가나초콜릿체 안내](assets/Ghanachocolate-NOTICE.txt)에 기록했습니다. CSV는 서식을 저장하지 않는 형식이므로 여는 프로그램의 글꼴 설정을 따릅니다.
