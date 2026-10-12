@@ -1,5 +1,10 @@
 # 쎈Pick
 
+> **쎈Pick은 쎈doc으로 통합되었습니다.** 문서 대조 기능은 이제 쎈doc의 **문서 대조** 화면에서 사용할 수 있습니다. 새 기능과 업데이트는 쎈doc으로 제공합니다.
+>
+> **[쎈doc 내려받기](https://github.com/HooniKims/ssen-doc/releases/latest)** · 쎈doc 저장소: https://github.com/HooniKims/ssen-doc
+
+
 **쎈Pick**은 따뜻한 회백색 바탕에 녹색 버튼과 민트색 강조를 사용합니다. 앱 화면·HTML 검사 결과는 가나초콜릿체, 설치 프로그램은 프리텐다드로 구성했습니다.
 
 학교의 여러 문서에서 날짜·인원·장소·금액의 차이를 찾아드립니다.
