@@ -1,21 +1,23 @@
 {
   "name": "moa-review",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "학교 문서의 불일치를 근거와 함께 확인하는 오프라인 데스크톱 앱",
   "author": "HooniKim",
+  "license": "SEE LICENSE IN LICENSE",
   "private": true,
   "main": "app/main.cjs",
   "scripts": {
     "start": "electron .",
     "test": "node --test tests/*.test.cjs",
     "test:ui": "playwright test",
-    "dist": "electron-builder --win nsis zip --x64 --publish never",
+    "dist": "node scripts/prepare-license.cjs && electron-builder --win nsis zip --x64 --publish never",
     "release": "node scripts/release.cjs"
   },
   "build": {
     "electronDist": "node_modules/electron/dist",
     "appId": "kr.moa.review",
     "productName": "쎈Pick",
+    "copyright": "Copyright 2026 상명초 김승현, 등촌중 김형훈",
     "directories": {
       "output": "release"
     },
@@ -23,7 +25,15 @@
       "app/**/*",
       "src/**/*",
       "assets/**/*",
-      "package.json"
+      "package.json",
+      "LICENSE",
+      "THIRD-PARTY-NOTICES.md"
+    ],
+    "extraFiles": [
+      {
+        "from": "build/LICENSE.txt",
+        "to": "LICENSE.txt"
+      }
     ],
     "publish": {
       "provider": "github",
@@ -48,6 +58,7 @@
         "ko_KR"
       ],
       "include": "build/installer.nsh",
+      "license": "build/LICENSE.txt",
       "installerSidebar": "build/installer/sidebar.bmp",
       "installerHeader": "build/installer/header.bmp"
     }

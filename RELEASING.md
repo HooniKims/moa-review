@@ -5,7 +5,7 @@
 1. `package.json` 버전을 올리고 `npm install --package-lock-only`로 잠금 파일을 갱신합니다.
 2. `CHANGELOG.md`에 `## 새버전` 항목과 변경 내용을 작성합니다.
 3. 커밋한 뒤 원격 저장소에 push합니다.
-4. `npm run release`를 실행합니다. 단위·Electron UI 테스트, Windows 설치형·ZIP 빌드, 해시 생성, GitHub 릴리즈 게시를 순서대로 수행합니다.
+4. `npm run release`를 실행합니다. 빌드 전에 `scripts/prepare-license.cjs`가 `LICENSE`로 설치 화면용 `build/LICENSE.txt`(UTF-16LE)를 만듭니다. 약관을 고칠 때는 `LICENSE`만 수정하세요. 단위·Electron UI 테스트, Windows 설치형·ZIP 빌드, 해시 생성, GitHub 릴리즈 게시를 순서대로 수행합니다.
 5. 첫 배포나 설치 UI 변경 시 실제 설치 파일을 열어 시작·진행·완료 화면, 완료 후 실행, 업데이트 확인을 검증합니다.
 
 초안은 `npm run release -- --draft`로 만들 수 있습니다. 초안을 게시하기 전에는 자동 업데이트에 표시되지 않습니다. 한 번 게시한 버전의 파일을 교체하지 말고 버전을 올려 새 릴리즈를 만드세요. 과거 릴리즈는 그대로 보관합니다.

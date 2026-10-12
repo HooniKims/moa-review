@@ -3,6 +3,7 @@ const icons={layers:'M12 3 2 8l10 5 10-5-10-5ZM2 12l10 5 10-5M2 16l10 5 10-5',bo
 icons.settings='M4 7h16M4 17h16M8 4v6M16 14v6';
 const icon=n=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${icons[n]||icons.file}"/></svg>`;
 document.querySelectorAll('[data-icon]').forEach(n=>n.innerHTML=icon(n.dataset.icon));
+document.documentElement.dataset.build='824652a67ab5';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let files=[],report=null,documents=[],selected=null,filter='all',busy=false,statuses={},toastTimer;
 $('#year').value=new Date().getFullYear();

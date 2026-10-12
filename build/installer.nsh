@@ -58,6 +58,11 @@
     !insertmacro MoaLabel 148 28 "HWPX · XLSX 지원$\r$\n문서 검사는 내 PC에서 진행됩니다." $MoaSmallFont "52675D"
     !insertmacro MoaLabel 182 12 "다음을 눌러 설치를 시작하세요." $MoaSmallFont "52675D"
   FunctionEnd
+  ; electron-builder inserts the license page (nsis.license) right after this macro.
+  !define MUI_PAGE_HEADER_TEXT "쎈Pick 이용약관"
+  !define MUI_PAGE_HEADER_SUBTEXT "설치하기 전에 이용약관을 확인해 주세요."
+  !define MUI_LICENSEPAGE_TEXT_TOP "쎈Pick을 설치하기 전에 이용약관을 읽어 주세요."
+  !define MUI_LICENSEPAGE_TEXT_BOTTOM "약관에 동의하면 [동의함]을 눌러 설치를 계속하세요."
 !macroend
 
 !macro customPageAfterChangeDir

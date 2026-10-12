@@ -15,6 +15,7 @@ async function screenshot(target){await page.screenshot({path:target,animations:
 test('update dialog shows current version and receives download progress',async()=>{
   await page.locator('#open-settings').click();await expect(page.locator('#update-dialog')).toBeVisible();
   await expect(page.locator('.maker-credit')).toContainText('HooniKim');await screenshot('docs/screenshot-settings.png');
+  await expect(page.locator('#update-dialog .app-copy')).toContainText('© 2026 상명초 김승현, 등촌중 김형훈');await expect(page.locator('#license-text')).toBeHidden();await page.locator('#license-toggle').click();await expect(page.locator('#license-text')).toBeVisible();await expect(page.locator('#license-text')).toContainText('쎈Pick 이용약관');await expect(page.locator('#license-text')).toContainText('김승현');await expect(page.locator('#license-toggle')).toHaveText('이용약관 닫기');await screenshot('docs/screenshot-license.png');await page.locator('#license-toggle').click();await expect(page.locator('#license-text')).toBeHidden();await expect(page.locator('#license-toggle')).toHaveText('이용약관 보기');
   await page.keyboard.press('Escape');await page.locator('#open-update').click();await expect(page.locator('#update-dialog')).toBeVisible();
   await expect(page.locator('#update-version')).toContainText(require('../package.json').version);
   await electronApp.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].webContents.send('update:state',{mode:'installed',phase:'available',current:'1.1.0',available:'1.2.0',progress:0,message:'새 버전 1.2.0을 내려받을 수 있습니다.'}));

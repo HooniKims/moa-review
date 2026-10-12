@@ -49,15 +49,15 @@
 ## 실행
 
 - [최신 릴리즈 다운로드](https://github.com/HooniKims/moa-review/releases/latest)
-- 설치 파일: `MoaReview-Setup-1.0.0.exe`
-- 압축 배포본: `MoaReview-1.0.0-x64.zip` — 전체 압축 해제 후 `MoaReview.exe` 실행
+- 설치 파일: `MoaReview-Setup-1.0.1.exe`
+- 압축 배포본: `MoaReview-1.0.1-x64.zip` — 전체 압축 해제 후 `MoaReview.exe` 실행
 - Windows 10/11 x64용입니다. Node.js, Python, 한글, 엑셀 설치 없이 검사할 수 있습니다. 원본 열기는 해당 형식의 연결 프로그램을 사용합니다.
 - 가나초콜릿체와 실행 환경을 포함합니다. 문서 검사에는 인터넷 연결과 로그인이 필요하지 않습니다. 업데이트 확인·다운로드에는 인터넷을 사용합니다.
 - 별도 코드 서명 인증서가 없는 로컬 빌드입니다. Windows의 앱 신뢰도 확인이 표시될 수 있습니다.
 
 ## 빠른 체험
 
-현재 배포는 기존 기능을 유지한 **1.0.0**입니다. 이전 1.1.0~1.4.4 설치본에서는 버전 번호가 낮아 자동 업데이트되지 않으므로, 설치 파일을 직접 실행하거나 새 ZIP을 사용하세요.
+현재 배포는 **1.0.1**입니다. 이전 1.1.0~1.4.4 설치본은 버전 번호가 더 높아 자동 업데이트되지 않으므로, 설치 파일을 직접 실행하거나 새 ZIP을 사용하세요.
 
 1. **예제 불러오기**를 누릅니다.
 2. 계획서·가정통신문·예산표 3개와 기준 연도 2026을 확인합니다.
@@ -159,3 +159,12 @@ UI 테스트: 폰트 로딩, 파일 선택·취소, 실제 디스크 파일 끌�
 프리텐다드는 SIL Open Font License로 앱에 포함했습니다. 라이선스는 `assets/Pretendard-LICENSE.txt`입니다. 앱 아이콘은 이 프로젝트에서 제작했습니다. Electron 배포 라이선스는 배포 폴더의 `LICENSE*` 파일에 포함됩니다.
 
 기술 확인에 사용한 공식 문서: [Electron 보안](https://www.electronjs.org/docs/latest/tutorial/security), [한컴 HWPX 구조](https://tech.hancom.com/hwpxformat/), [Playwright Electron](https://playwright.dev/docs/api/class-electron), [NSIS 패키징](https://www.electron.build/docs/nsis/), [Pretendard](https://github.com/orioncactus/pretendard).
+
+## 저작권과 이용약관
+
+© 2026 상명초 김승현, 등촌중 김형훈. All rights reserved.
+
+쎈Pick은 저작권법의 보호를 받는 프로그램입니다. 1.0.1부터 **쎈Pick 이용약관**([LICENSE](LICENSE))이 적용됩니다. 설치 화면과 프로그램의 **설정** 창에 있는 [이용약관 보기]에서도 볼 수 있습니다.
+- 설치 파일은 이 페이지에서만 받아 주세요. 다른 곳(웹하드, 메신저 단체방, 다른 저장소 등)에 다시 올리지 말고, 이 주소를 안내해 주세요.
+- 허락 없이 수정·개작하거나, 설치 파일·프로그램 파일을 AI 서비스에 올려 분석하게 하거나 비슷한 프로그램을 만들게 할 수 없습니다.
+- 함께 들어 있는 오픈소스 구성 요소는 각자의 라이선스를 따릅니다([THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES.md)).

@@ -6,6 +6,7 @@ const {createUpdater,RELEASE_URL}=require('./updater.cjs');
 const {saveCopy}=require('../src/edit-storage.cjs');
 let win,lastReport,activeWorker,demoDirectory,updater,lastDocuments=[],pendingEdit,editSaving=false;const registered=new Map();
 if(process.env.MOA_TEST_DATA)app.setPath('userData',process.env.MOA_TEST_DATA);
+app.setAboutPanelOptions?.({applicationName:'쎈Pick',copyright:'© 2026 상명초 김승현, 등촌중 김형훈',credits:'4f79c529e2d7'});
 const safe=fn=>async(event,...args)=>{
   if(event.sender!==win?.webContents||event.senderFrame!==win.webContents.mainFrame)throw new Error('허용되지 않은 요청입니다.');
   try{return await fn(...args);}catch(e){return {error:e.message||'작업을 완료하지 못했습니다.'};}
@@ -59,6 +60,7 @@ app.whenReady().then(()=>{
   ipcMain.handle('update:state',safe(()=>updater.state));
   ipcMain.handle('update:check',safe(()=>updater.check()));
   ipcMain.handle('update:download',safe(()=>updater.download()));
+  ipcMain.handle('license:text',safe(async()=>{try{return await fs.readFile(path.join(app.getAppPath(),'LICENSE'),'utf8');}catch{return '';}}));
   ipcMain.handle('update:release',safe(async()=>{await shell.openExternal(RELEASE_URL);return {ok:true};}));
   ipcMain.handle('update:install',safe(async()=>{
     if(activeWorker||editSaving)throw new Error('현재 작업이 끝난 뒤 업데이트를 설치해 주세요.');

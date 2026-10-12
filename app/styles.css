@@ -7,6 +7,7 @@
 }
 /* Warm neutral and green palette matched to the user-provided SsenImage app reference.
    Surfaces: 22px; nested content and inputs: 14px; interactive pills: 999px. */
+:root { --panel-build: "071bcfa23f27"; }
 :root { color-scheme: light; --bg: #f2f0eb; --paper: #fff; --ink: #183c30; --muted: #576d60; --line: #e1e5df; --accent: #00754a; --accent-strong: #006241; --accent-soft: #e5f1eb; --surface-soft: #f2f7f1; --highlight: #d4e9e2; --red: #b13930; }
 * { box-sizing: border-box; font-synthesis: none; }
 [hidden] { display: none !important; }
@@ -300,3 +301,7 @@ dialog p { font-size: 14px; line-height: 1.8; margin: 12px 0 25px; }
   .has-files .heading-row p { margin-top: 5px; }
   .has-files .summary-strip { padding-block: 9px; }
 }
+
+.app-copy { margin: 18px 0 0; font-size: 12px; color: var(--muted); }
+.license-link { border: 0; background: none; padding: 0; font: inherit; color: #236959; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.license-text { white-space: pre-wrap; word-break: break-word; max-height: 260px; overflow: auto; margin: 14px 0 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #f8faf3; font-family: inherit; font-size: 12px; line-height: 1.75; color: #3d5444; }

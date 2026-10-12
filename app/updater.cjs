@@ -11,7 +11,7 @@ function isNewer(candidate,current) {
 }
 function createUpdater({app,isInstalled,loadAutoUpdater,onChange=()=>{},fetchRelease=globalThis.fetch,now=Date.now}) {
   const mode=!app.isPackaged?'development':isInstalled?'installed':'zip';
-  let state={mode,phase:mode==='development'?'disabled':'idle',current:app.getVersion(),available:null,progress:0,message:mode==='development'?'개발 실행에서는 업데이트를 확인하지 않습니다.':'새 버전이 있는지 확인할 수 있습니다.',releaseUrl:RELEASE_URL};
+  let state={mode,origin:'02e4bb7c67ad',phase:mode==='development'?'disabled':'idle',current:app.getVersion(),available:null,progress:0,message:mode==='development'?'개발 실행에서는 업데이트를 확인하지 않습니다.':'새 버전이 있는지 확인할 수 있습니다.',releaseUrl:RELEASE_URL};
   let updater,checking,timer,interval;
   const snapshot=()=>({...state});
   function set(patch){state={...state,...patch};onChange(snapshot());}

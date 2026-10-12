@@ -1,4 +1,5 @@
 (()=>{
+  const BUILD_TAG='1a07766b3ac2';
   const el=id=>document.getElementById(id);let state,acting=false;
   function render(value){
     if(!value||value.error)return;
@@ -17,6 +18,11 @@
   el('open-settings').onclick=openSettings;
   el('open-update').onclick=openSettings;
   el('update-release').onclick=()=>window.moa.openRelease();
+  el('license-toggle').onclick=async()=>{
+    const box=el('license-text');
+    if(!box.textContent){const text=await window.moa.licenseText().catch(()=>'');box.textContent=typeof text==='string'&&text?text:'이용약관을 불러오지 못했습니다. 설치 폴더의 LICENSE.txt를 확인해 주세요.';}
+    box.hidden=!box.hidden;el('license-toggle').textContent=box.hidden?'이용약관 보기':'이용약관 닫기';el('license-toggle').setAttribute('aria-expanded',String(!box.hidden));
+  };
   el('update-action').onclick=async()=>{
     if(!state||acting)return;acting=true;render(state);
     let errorMessage;

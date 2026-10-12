@@ -19,6 +19,7 @@ function main(){
   if(!section)fail('CHANGELOG.md에 이번 버전의 변경 내용을 적어 주세요.');
   run(process.execPath,['--test',...fs.readdirSync(path.join(root,'tests')).filter(n=>n.endsWith('.test.cjs')).map(n=>`tests/${n}`)],true);
   run(process.execPath,[require.resolve('@playwright/test/cli'),'test'],true);
+  run(process.execPath,[path.join(root,'scripts/prepare-license.cjs')],true);
   run(process.execPath,[require.resolve('electron-builder/cli'),'--win','nsis','zip','--x64','--publish','never',`--config.directories.output=${dir}`],true);
   const names=[`MoaReview-Setup-${version}.exe`,`MoaReview-Setup-${version}.exe.blockmap`,`MoaReview-${version}-x64.zip`,'latest.yml'];
   const paths=names.map(n=>path.join(dir,n));

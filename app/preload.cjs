@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('moa',{
   downloadUpdate:()=>ipcRenderer.invoke('update:download'),
   installUpdate:()=>ipcRenderer.invoke('update:install'),
   openRelease:()=>ipcRenderer.invoke('update:release'),
+  licenseText:()=>ipcRenderer.invoke('license:text'),
   onUpdate:callback=>{const listener=(_event,state)=>callback(state);ipcRenderer.on('update:state',listener);return ()=>ipcRenderer.removeListener('update:state',listener);},
   minimize:()=>ipcRenderer.send('window:minimize'),
   maximize:()=>ipcRenderer.send('window:maximize'),
